@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 from github import Github
 from datetime import datetime, timedelta
@@ -97,5 +98,38 @@ def run_checks():
             send_telegram(issue, config)
 
 
+# --- 4. TEST FUNCTION ---
+def send_test_message():
+    """Send a test message to verify Telegram is working"""
+    test_config = {
+        "label": "🧪 TEST",
+        "topic_id": 2,
+    }
+
+    msg = (
+        f"{test_config['label']} **Test Message**\n"
+        f"✅ Telegram integration is working!\n"
+        f"⏰ Sent at: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
+        f"🤖 Issue Tracker Bot is ready to receive notifications."
+    )
+
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": msg,
+        "parse_mode": "HTML",
+        "message_thread_id": test_config["topic_id"],
+    }
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        print(f"✅ Test message sent successfully!")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error sending test message: {e}")
+
+
 if __name__ == "__main__":
-    run_checks()
+    if len(sys.argv) > 1 and sys.argv[1] == "--test":
+        send_test_message()
+    else:
+        run_checks()
