@@ -78,27 +78,39 @@ def send_telegram(issue, rule_config):
 
 # --- 3. SEARCH LOGIC ---
 def run_checks():
-    # Look back 15 mins (matching cron schedule)
-    since_time = datetime.utcnow() - timedelta(minutes=15)
+    # Look back 22 mins to catch recently created issues
+    since_time = datetime.utcnow() - timedelta(minutes=22)
+    print(f"⏰ Checking issues created after: {since_time.isoformat()}")
 
     # Loop through our different rules (Active vs Passive)
     for rule_name, config in RULES.items():
         print(f"Checking {rule_name}...")
 
-        # Build Query: (org:A OR org:B) + filters + created_time
-        org_block = "(" + " OR ".join([f"org:{name}" for name in config["names"]]) + ")"
-        query = (
-            f"is:issue is:open no:assignee -linked:pr -label:question "
-            f"created:>{since_time.isoformat()} "
-            f"{org_block} {config['filters']}"
-        )
+        # Split organizations into smaller batches to avoid GitHub API query complexity limits
+        org_names = config["names"]
+        batch_size = 5
 
-        print(f"Query: {query}")
-        issues = g.search_issues(query=query, sort="created", order="desc")
+        for batch_start in range(0, len(org_names), batch_size):
+            batch_names = org_names[batch_start : batch_start + batch_size]
+            # Don't use parentheses - GitHub search doesn't work well with them
+            org_block = " ".join([f"org:{name}" for name in batch_names])
+            created_filter = f"created:>{since_time.isoformat()}"
+            query = f"is:issue is:open no:assignee -linked:pr -label:question {created_filter} {org_block} {config['filters']}"
 
-        for issue in issues:
-            print(f"Found: {issue.title}")
-            send_telegram(issue, config)
+            print(f"Query: {query[:100]}...")  # Print first 100 chars only
+            try:
+                issues = g.search_issues(query=query, sort="created", order="desc")
+                issue_count = 0
+                for issue in issues:
+                    issue_count += 1
+                    print(f"Found: {issue.title}")
+                    send_telegram(issue, config)
+                print(f"✅ {rule_name}: Found {issue_count} issue(s)")
+            except Exception as e:
+                print(f"❌ Error searching {rule_name}: {e}")
+                import traceback
+
+                traceback.print_exc()
 
 
 # --- 4. TEST FUNCTION ---
