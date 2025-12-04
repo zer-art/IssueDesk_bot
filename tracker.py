@@ -21,25 +21,36 @@ TELEGRAM_CHAT_ID = int(
 RULES = {
     "active_orgs": {
         "names": [
-            "deepchem",
             "Cloud-CV",
-            "keras-team",
             "cBioPortal",
             "google-deepmind",
             "kornia",
             "JdeRobot",
             "openclimatefix",
-            "opencv",
         ],
         "filters": "",
         "topic_id": 2,
-        "label": "🔥 URGENT",
+        "label": "🔥 MOST WORKED ON",
     },
-    "passive_orgs": {
-        "names": ["Cloud-CV", "cBioPortal", "opencv", "kornia"],
+    "good_first_issues": {
+        "names": [
+            "openvinotoolkit",
+            "JabRef",
+            "kubeflow",
+            "Cloud-CV",
+            "opencv",
+            "google-deepmind",
+            "keras-team",
+            "kornia",
+            "openclimatefix",
+            "deepchem",
+            "JdeRobot",
+            "projectmesa",
+            "hsf",
+        ],
         "filters": 'label:"good first issue","help wanted"',
         "topic_id": 3,
-        "label": "🌱 EASY",
+        "label": "🌱 GOOD FIRST ISSUE",
     },
 }
 
@@ -78,8 +89,8 @@ def send_telegram(issue, rule_config):
 
 # --- 3. SEARCH LOGIC ---
 def run_checks():
-    # Look back 22 mins to catch recently created issues
-    since_time = datetime.utcnow() - timedelta(minutes=22)
+    # Look back 13 mins to catch recently created issues
+    since_time = datetime.utcnow() - timedelta(minutes=13)
     print(f"⏰ Checking issues created after: {since_time.isoformat()}")
 
     # Loop through our different rules (Active vs Passive)
@@ -143,8 +154,63 @@ def send_test_message():
         print(f"❌ Error sending test message: {e}")
 
 
+# --- 5. TEST LAST ISSUE FROM EACH ORG ---
+def send_last_issue_from_each_org():
+    """Send the last issue from each organization as a test"""
+    all_orgs = []
+
+    # Collect all orgs from both rules
+    for rule_name, config in RULES.items():
+        all_orgs.extend(config["names"])
+
+    # Remove duplicates
+    all_orgs = list(set(all_orgs))
+
+    print(f"🔍 Fetching last issue from {len(all_orgs)} organizations...\n")
+
+    for org in sorted(all_orgs):
+        try:
+            # Get the last open issue from this org
+            query = f"org:{org} is:issue is:open"
+            issues = g.search_issues(query=query, sort="created", order="desc")
+
+            issue = None
+            for i in issues:
+                issue = i
+                break
+
+            if issue:
+                # Format message
+                msg = (
+                    f"🧪 **Last Issue from {org}**\n"
+                    f"📝 **Title:** {issue.title}\n"
+                    f"🏷️ **Labels:** {', '.join([l.name for l in issue.labels]) if issue.labels else 'None'}\n"
+                    f"👤 **Assignee:** {issue.assignee.login if issue.assignee else 'None'}\n"
+                    f"🔗 <a href='{issue.html_url}'>Open Issue</a>"
+                )
+
+                url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+                payload = {
+                    "chat_id": TELEGRAM_CHAT_ID,
+                    "text": msg,
+                    "parse_mode": "HTML",
+                    "message_thread_id": 2,  # Send to active_orgs topic
+                }
+
+                response = requests.post(url, json=payload)
+                response.raise_for_status()
+                print(f"✅ {org}: {issue.title[:50]}...")
+            else:
+                print(f"❌ {org}: No issues found")
+
+        except Exception as e:
+            print(f"⚠️  {org}: {str(e)[:50]}")
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
         send_test_message()
+    elif len(sys.argv) > 1 and sys.argv[1] == "--test-orgs":
+        send_last_issue_from_each_org()
     else:
         run_checks()
