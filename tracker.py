@@ -88,7 +88,7 @@ def run_checks():
 
         # Split organizations into smaller batches to avoid GitHub API query complexity limits
         org_names = config["names"]
-        batch_size = 5
+        batch_size = 2
 
         for batch_start in range(0, len(org_names), batch_size):
             batch_names = org_names[batch_start : batch_start + batch_size]
