@@ -16,7 +16,17 @@ TELEGRAM_CHAT_ID = int(
 # Define your logic here
 RULES = {
     "active_orgs": {
-        "names": ["deepchem", "google-deepmind", "keras-team"],
+        "names": [
+            "deepchem",
+            "Cloud-CV",
+            "keras-team",
+            "cBioPortal",
+            "google-deepmind",
+            "kornia",
+            "JdeRobot",
+            "openclimatefix",
+            "opencv",
+        ],
         "filters": "",
         "topic_id": 2,
         "label": "🔥 URGENT",
