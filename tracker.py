@@ -89,8 +89,8 @@ def send_telegram(issue, rule_config):
 
 # --- 3. SEARCH LOGIC ---
 def run_checks():
-    # Look back 13 mins to catch recently created issues
-    since_time = datetime.utcnow() - timedelta(minutes=13)
+    # Look back 30 mins to catch recently created issues
+    since_time = datetime.utcnow() - timedelta(minutes=30)
     print(f"⏰ Checking issues created after: {since_time.isoformat()}")
 
     # Loop through our different rules (Active vs Passive)
@@ -106,7 +106,14 @@ def run_checks():
             # Don't use parentheses - GitHub search doesn't work well with them
             org_block = " ".join([f"org:{name}" for name in batch_names])
             created_filter = f"created:>{since_time.isoformat()}"
-            query = f"is:issue is:open no:assignee -linked:pr -label:question {created_filter} {org_block} {config['filters']}"
+
+            # Different filters for different rule types
+            if rule_name == "good_first_issues":
+                # For good first issues, allow assigned issues
+                query = f"is:issue is:open -linked:pr -label:question {created_filter} {org_block} {config['filters']}"
+            else:
+                # For active orgs, only unassigned
+                query = f"is:issue is:open no:assignee -linked:pr -label:question {created_filter} {org_block} {config['filters']}"
 
             print(f"Query: {query[:100]}...")  # Print first 100 chars only
             try:
