@@ -18,6 +18,36 @@ TELEGRAM_CHAT_ID = int(
 )  # The main Group ID (starts with -100 usually)
 
 # Define your logic here
+AI_RELATED_GSOC_ORGS = [
+    "Cloud-CV",
+    "cBioPortal",
+    "google-deepmind",
+    "kornia",
+    "JdeRobot",
+    "openclimatefix",
+    "scikit-learn",
+    "pandas-dev",
+    "numpy",
+    "huggingface",
+    "pytorch",
+    "openvinotoolkit",
+    "JabRef",
+    "kubeflow",
+    "opencv",
+    "keras-team",
+    "deepchem",
+    "projectmesa",
+    "hsf",
+    "HumanAI",
+    "unifyai",
+    "jina-ai",
+    "skit-ai",
+    "apidash",
+    "fossi-foundation",
+    "LiquidGalaxyLAB",
+    "AOSSIE",
+]
+
 RULES = {
     "active_orgs": {
         "names": [
@@ -27,10 +57,22 @@ RULES = {
             "kornia",
             "JdeRobot",
             "openclimatefix",
+            "scikit-learn",
+            "pandas-dev",
+            "numpy",
+            "huggingface",
+            "pytorch",
         ],
         "filters": "",
         "topic_id": 2,
         "label": "🔥 MOST WORKED ON",
+    },
+    "python_issues": {
+        "names": AI_RELATED_GSOC_ORGS,
+        "filters": "language:python",
+        "topic_id": 198,
+        "label": "🐍 PYTHON ISSUE",
+        "check_cross_org_membership": True,
     },
     "good_first_issues": {
         "names": [
@@ -47,6 +89,11 @@ RULES = {
             "JdeRobot",
             "projectmesa",
             "hsf",
+            "scikit-learn",
+            "pandas-dev",
+            "numpy",
+            "huggingface",
+            "pytorch",
         ],
         "filters": 'label:"good first issue","help wanted"',
         "topic_id": 3,
@@ -58,7 +105,7 @@ g = Github(GH_TOKEN)
 
 
 # --- 2. NOTIFICATION FUNCTION ---
-def send_telegram(issue, rule_config):
+def send_telegram(issue, rule_config, is_member=False):
     """Sends message to a specific Topic ID based on the rule"""
 
     # Custom message format based on the 'label' in config
@@ -69,6 +116,9 @@ def send_telegram(issue, rule_config):
         f"🏷️ **Labels:** {', '.join([l.name for l in issue.labels])}\n"
         f"🔗 <a href='{issue.html_url}'>Open Issue</a>"
     )
+
+    if is_member:
+        msg += "\n💡 **Opened by Member/Collaborator**"
 
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     payload = {
@@ -109,8 +159,8 @@ def run_checks():
 
             # Different filters for different rule types
             if rule_name == "good_first_issues":
-                # For good first issues, allow assigned issues
-                query = f"is:issue is:open -linked:pr -label:question {created_filter} {org_block} {config['filters']}"
+                # For good first issues, we also want to exclude assigned issues now
+                query = f"is:issue is:open no:assignee -linked:pr -label:question {created_filter} {org_block} {config['filters']}"
             else:
                 # For active orgs, only unassigned
                 query = f"is:issue is:open no:assignee -linked:pr -label:question {created_filter} {org_block} {config['filters']}"
@@ -120,9 +170,44 @@ def run_checks():
                 issues = g.search_issues(query=query, sort="created", order="desc")
                 issue_count = 0
                 for issue in issues:
+                    # Double check if assigned (sometimes search API is eventually consistent)
+                    if issue.assignee:
+                        continue
+                        
+                    
+                    # Check if the author is a member/collaborator
+                    author_assoc = issue.author_association
+                    is_privileged = author_assoc in ["MEMBER", "OWNER", "COLLABORATOR"]
+
+                    # Logic for Python/AI GSOC issues (Topic 4)
+                    if config.get("check_cross_org_membership"):
+                        # If already privileged in the local repo, good.
+                        # If not, check if they are a member of any AI GSOC org.
+                        if not is_privileged:
+                            try:
+                                user_orgs = [o.login for o in issue.user.get_orgs()]
+                                # Check intersection
+                                if any(org in AI_RELATED_GSOC_ORGS for org in user_orgs):
+                                    is_privileged = True
+                                    print(f" -> User {issue.user.login} is member of AI GSOC orgs.")
+                            except Exception as e:
+                                print(f"⚠️ Could not fetch orgs for user {issue.user.login}: {e}")
+
+                        # If still not privileged after check, skip sending
+                        if not is_privileged:
+                            print(f"Skipping {issue.title} (User {issue.user.login} not a known maintainer)")
+                            continue
+                    
+                    # For Active Orgs (Most Worked On), we don't strictly filter by membership 
+                    # for *sending* (based on original code logic sending everything found), 
+                    # but we mark is_member for the badge.
+                    # HOWEVER, verify if original intent for 'active_orgs' was to filter? 
+                    # Original code: send_telegram(..., is_member=is_privileged)
+                    # It sent ALL issues found by query.
+                    
                     issue_count += 1
-                    print(f"Found: {issue.title}")
-                    send_telegram(issue, config)
+                    print(f"Found: {issue.title} (Author: {issue.user.login}, Assoc: {author_assoc})")
+                    send_telegram(issue, config, is_member=is_privileged)
                 print(f"✅ {rule_name}: Found {issue_count} issue(s)")
             except Exception as e:
                 print(f"❌ Error searching {rule_name}: {e}")
