@@ -54,24 +54,16 @@ ALL_GSOC_ORGS = list(set(AI_RELATED_GSOC_ORGS + [
     "BeagleBoard-org", "blender", "BRL-CAD", "carbon-language", "django", "gcc-mirror", "inkscape", "OpenAstronomy",
     "organicmaps", "ruby", "spcl", "torproject", "GNOME", "KDE", "libvirt", "openMF", "openhealthcare", "OSGeo",
     "polypheny", "RTEMS", "su2code", "videolan", "zulip", "CircuitVerse", "CGAL", "c2si", "gnu-octave", "json-schema-org",
-    "meta", "microsoft", "aws", "google", "facebook", "twitter", "netflix", "airbnb", "spotify", "uber", "lyft",
-    "dropbox", "slackhq", "square", "stripe", "twilio", "palantir", "vmware", "intel", "nvidia", "amd", "arm-software",
     "mozilla", "eclipse", "linuxfoundation", "cncf", "kubernetes", "prometheus", "envoyproxy", "grpc", "opentracing",
     "fluentd", "linkerd", "goharbor", "helm", "etcd", "tikv", "coredns", "containerd", "rkt", "cni", "notary", "tuf",
     "rook", "vitess", "nats-io", "opa", "spiffe", "spire", "cloudevents", "telepresence", "open-policy-agent",
     "pravega", "curiefense", "longhorn", "keda", "smi", "volcano", "k3s", "argoproj", "crossplane", "dapr", "kudobuilder",
     "open-telemetry", "thanos-io", "fluxcd", "zowe", "jenkins", "gradle", "maven", "spring-projects", "spring-io",
     "hibernate", "jakartaee", "quarkusio", "micronaut-projects", "helidon-io", "eclipse-ee4j", "eclipse-microprofile",
-    "nodejs", "denoland", "expressjs", "nestjs", "fastify", "socketio", "meteor", "vuejs", "reactjs", "angular",
-    "sveltejs", "emberjs", "backbone", "jquery", "bootstrap", "foundation", "bulma", "tailwindlabs", "sass", "less",
-    "webpack", "rollup", "parcel-bundler", "gulpjs", "gruntjs", "babel", "typescript", "rust-lang", "golang", "swiftlang",
-    "kotlin", "scala", "groovy", "clojure", "haskell", "ocaml", "erlang", "elixir-lang", "php", "laravel", "symfony",
-    "codeigniter", "cakephp", "yiisoft", "zendframework", "slimphp", "phalcon", "fuelphp", "joomla", "drupal", "wordpress",
-    "magento", "opencart", "prestashop", "shopify", "bigcommerce", "woocommerce", "moodle", "canvas", "blackboard",
-    "edx", "coursera", "udacity", "khanacademy", "codecademy", "freecodecamp", "exercism", "codewars", "hackerrank",
-    "leetcode", "topcoder", "kaggle", "datascience", "machinelearning", "deeplearning", "artificialintelligence",
-    "robotics", "computer-vision", "nlp", "reinforcement-learning", "gan", "bert", "gpt", "transformer", "bert-embedding",
-    "word2vec", "glove", "fasttext", "elmo", "xlnet", "roberta", "albert", "t5", "gpt-2", "gpt-3", "gpt-4",
+    "nodejs", "denoland", "typescript", "rust-lang", "golang", "swiftlang", "kotlin", "scala", "groovy", "clojure",
+    "haskell", "ocaml", "erlang", "elixir-lang", "php", "laravel", "symfony", "codeigniter", "cakephp", "yiisoft",
+    "zendframework", "slimphp", "phalcon", "fuelphp", "joomla", "drupal", "wordpress", "moodle", "edx", "freecodecamp",
+    "exercism"
 ]))
 
 RULES = {
