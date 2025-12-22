@@ -48,6 +48,32 @@ AI_RELATED_GSOC_ORGS = [
     "AOSSIE",
 ]
 
+# Comprehensive list (AI related + other popular GSOC orgs)
+ALL_GSOC_ORGS = list(set(AI_RELATED_GSOC_ORGS + [
+    "52North", "aboutcode-org", "accordproject", "AFLplusplus", "ankidroid", "apache", "apertium", "ArduPilot",
+    "BeagleBoard-org", "blender", "BRL-CAD", "carbon-language", "django", "gcc-mirror", "inkscape", "OpenAstronomy",
+    "organicmaps", "ruby", "spcl", "torproject", "GNOME", "KDE", "libvirt", "openMF", "openhealthcare", "OSGeo",
+    "polypheny", "RTEMS", "su2code", "videolan", "zulip", "CircuitVerse", "CGAL", "c2si", "gnu-octave", "json-schema-org",
+    "meta", "microsoft", "aws", "google", "facebook", "twitter", "netflix", "airbnb", "spotify", "uber", "lyft",
+    "dropbox", "slackhq", "square", "stripe", "twilio", "palantir", "vmware", "intel", "nvidia", "amd", "arm-software",
+    "mozilla", "eclipse", "linuxfoundation", "cncf", "kubernetes", "prometheus", "envoyproxy", "grpc", "opentracing",
+    "fluentd", "linkerd", "goharbor", "helm", "etcd", "tikv", "coredns", "containerd", "rkt", "cni", "notary", "tuf",
+    "rook", "vitess", "nats-io", "opa", "spiffe", "spire", "cloudevents", "telepresence", "open-policy-agent",
+    "pravega", "curiefense", "longhorn", "keda", "smi", "volcano", "k3s", "argoproj", "crossplane", "dapr", "kudobuilder",
+    "open-telemetry", "thanos-io", "fluxcd", "zowe", "jenkins", "gradle", "maven", "spring-projects", "spring-io",
+    "hibernate", "jakartaee", "quarkusio", "micronaut-projects", "helidon-io", "eclipse-ee4j", "eclipse-microprofile",
+    "nodejs", "denoland", "expressjs", "nestjs", "fastify", "socketio", "meteor", "vuejs", "reactjs", "angular",
+    "sveltejs", "emberjs", "backbone", "jquery", "bootstrap", "foundation", "bulma", "tailwindlabs", "sass", "less",
+    "webpack", "rollup", "parcel-bundler", "gulpjs", "gruntjs", "babel", "typescript", "rust-lang", "golang", "swiftlang",
+    "kotlin", "scala", "groovy", "clojure", "haskell", "ocaml", "erlang", "elixir-lang", "php", "laravel", "symfony",
+    "codeigniter", "cakephp", "yiisoft", "zendframework", "slimphp", "phalcon", "fuelphp", "joomla", "drupal", "wordpress",
+    "magento", "opencart", "prestashop", "shopify", "bigcommerce", "woocommerce", "moodle", "canvas", "blackboard",
+    "edx", "coursera", "udacity", "khanacademy", "codecademy", "freecodecamp", "exercism", "codewars", "hackerrank",
+    "leetcode", "topcoder", "kaggle", "datascience", "machinelearning", "deeplearning", "artificialintelligence",
+    "robotics", "computer-vision", "nlp", "reinforcement-learning", "gan", "bert", "gpt", "transformer", "bert-embedding",
+    "word2vec", "glove", "fasttext", "elmo", "xlnet", "roberta", "albert", "t5", "gpt-2", "gpt-3", "gpt-4",
+]))
+
 RULES = {
     "active_orgs": {
         "names": [
@@ -72,6 +98,13 @@ RULES = {
         "filters": "language:python",
         "topic_id": 198,
         "label": "🐍 PYTHON ISSUE",
+        "check_cross_org_membership": True,
+    },
+    "maintainer_issues": {
+        "names": ALL_GSOC_ORGS,
+        "filters": "",
+        "topic_id": 208,
+        "label": "🛡️ MAINTAINER ISSUE",
         "check_cross_org_membership": True,
     },
     "good_first_issues": {
@@ -149,7 +182,7 @@ def run_checks():
 
         # Split organizations into smaller batches to avoid GitHub API query complexity limits
         org_names = config["names"]
-        batch_size = 2
+        batch_size = 5  # Increased from 2 for better performance with large org lists
 
         for batch_start in range(0, len(org_names), batch_size):
             batch_names = org_names[batch_start : batch_start + batch_size]
@@ -179,23 +212,26 @@ def run_checks():
                     author_assoc = issue.author_association
                     is_privileged = author_assoc in ["MEMBER", "OWNER", "COLLABORATOR"]
 
-                    # Logic for Python/AI GSOC issues (Topic 4)
+                    
+                    # Logic for Cross-Org Membership Checks (Python Topic & Maintainer Topic)
                     if config.get("check_cross_org_membership"):
                         # If already privileged in the local repo, good.
-                        # If not, check if they are a member of any AI GSOC org.
+                        # If not, check if they are a member of any listed org for this rule.
                         if not is_privileged:
                             try:
                                 user_orgs = [o.login for o in issue.user.get_orgs()]
-                                # Check intersection
-                                if any(org in AI_RELATED_GSOC_ORGS for org in user_orgs):
+                                # Check intersection with the orgs defined in this specific rule
+                                # config["names"] contains the list of orgs we are monitoring (AI_RELATED_GSOC_ORGS or ALL_GSOC_ORGS)
+                                if any(org in config["names"] for org in user_orgs):
                                     is_privileged = True
-                                    print(f" -> User {issue.user.login} is member of AI GSOC orgs.")
+                                    print(f" -> User {issue.user.login} is member of tracked GSOC orgs.")
                             except Exception as e:
                                 print(f"⚠️ Could not fetch orgs for user {issue.user.login}: {e}")
 
                         # If still not privileged after check, skip sending
                         if not is_privileged:
-                            print(f"Skipping {issue.title} (User {issue.user.login} not a known maintainer)")
+                            # Only noisy in debug/verbose, maybe reduce print?
+                            # print(f"Skipping {issue.title} (User {issue.user.login} not a known maintainer)")
                             continue
                     
                     # For Active Orgs (Most Worked On), we don't strictly filter by membership 
