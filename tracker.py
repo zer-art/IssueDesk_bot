@@ -78,13 +78,6 @@ RULES = {
         "topic_id": 2,
         "label": "🔥 MOST WORKED ON",
     },
-    "python_issues": {
-        "names": AI_RELATED_GSOC_ORGS,
-        "filters": "language:python",
-        "topic_id": 198,
-        "label": "🐍 PYTHON ISSUE",
-        "check_cross_org_membership": True,
-    },
     "good_first_issues": {
         "names": ALL_GSOC_ORGS,
         "filters": 'label:"good first issue","help wanted"',
