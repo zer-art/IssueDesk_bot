@@ -69,17 +69,10 @@ ALL_GSOC_ORGS = list(set(AI_RELATED_GSOC_ORGS + [
 RULES = {
     "active_orgs": {
         "names": [
-            "Cloud-CV",
             "cBioPortal",
             "google-deepmind",
             "kornia",
-            "JdeRobot",
             "openclimatefix",
-            "scikit-learn",
-            "pandas-dev",
-            "numpy",
-            "huggingface",
-            "pytorch",
         ],
         "filters": "",
         "topic_id": 2,
@@ -90,13 +83,6 @@ RULES = {
         "filters": "language:python",
         "topic_id": 198,
         "label": "🐍 PYTHON ISSUE",
-        "check_cross_org_membership": True,
-    },
-    "maintainer_issues": {
-        "names": ALL_GSOC_ORGS,
-        "filters": "",
-        "topic_id": 208,
-        "label": "🛡️ MAINTAINER ISSUE",
         "check_cross_org_membership": True,
     },
     "good_first_issues": {
