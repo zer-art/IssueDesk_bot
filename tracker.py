@@ -17,55 +17,6 @@ TELEGRAM_CHAT_ID = int(
     os.environ.get("TELEGRAM_CHAT_ID", 0)
 )  # The main Group ID (starts with -100 usually)
 
-# Define your logic here
-AI_RELATED_GSOC_ORGS = [
-    "Cloud-CV",
-    "cBioPortal",
-    "google-deepmind",
-    "kornia",
-    "JdeRobot",
-    "openclimatefix",
-    "scikit-learn",
-    "pandas-dev",
-    "numpy",
-    "huggingface",
-    "pytorch",
-    "openvinotoolkit",
-    "JabRef",
-    "kubeflow",
-    "opencv",
-    "keras-team",
-    "deepchem",
-    "projectmesa",
-    "hsf",
-    "HumanAI",
-    "unifyai",
-    "jina-ai",
-    "skit-ai",
-    "apidash",
-    "fossi-foundation",
-    "LiquidGalaxyLAB",
-    "AOSSIE",
-]
-
-# Comprehensive list (AI related + other popular GSOC orgs)
-ALL_GSOC_ORGS = list(set(AI_RELATED_GSOC_ORGS + [
-    "52North", "aboutcode-org", "accordproject", "AFLplusplus", "ankidroid", "apache", "apertium", "ArduPilot",
-    "BeagleBoard-org", "blender", "BRL-CAD", "carbon-language", "django", "gcc-mirror", "inkscape", "OpenAstronomy",
-    "organicmaps", "ruby", "spcl", "torproject", "GNOME", "KDE", "libvirt", "openMF", "openhealthcare", "OSGeo",
-    "polypheny", "RTEMS", "su2code", "videolan", "zulip", "CircuitVerse", "CGAL", "c2si", "gnu-octave", "json-schema-org",
-    "mozilla", "eclipse", "linuxfoundation", "cncf", "kubernetes", "prometheus", "envoyproxy", "grpc", "opentracing",
-    "fluentd", "linkerd", "goharbor", "helm", "etcd", "tikv", "coredns", "containerd", "rkt", "cni", "notary", "tuf",
-    "rook", "vitess", "nats-io", "opa", "spiffe", "spire", "cloudevents", "telepresence", "open-policy-agent",
-    "pravega", "curiefense", "longhorn", "keda", "smi", "volcano", "k3s", "argoproj", "crossplane", "dapr", "kudobuilder",
-    "open-telemetry", "thanos-io", "fluxcd", "zowe", "jenkins", "gradle", "maven", "spring-projects", "spring-io",
-    "hibernate", "jakartaee", "quarkusio", "micronaut-projects", "helidon-io", "eclipse-ee4j", "eclipse-microprofile",
-    "nodejs", "denoland", "typescript", "rust-lang", "golang", "swiftlang", "kotlin", "scala", "groovy", "clojure",
-    "haskell", "ocaml", "erlang", "elixir-lang", "php", "laravel", "symfony", "codeigniter", "cakephp", "yiisoft",
-    "zendframework", "slimphp", "phalcon", "fuelphp", "joomla", "drupal", "wordpress", "moodle", "edx", "freecodecamp",
-    "exercism"
-]))
-
 RULES = {
     "active_orgs": {
         "names": [
@@ -79,7 +30,22 @@ RULES = {
         "label": "🔥 MOST WORKED ON",
     },
     "good_first_issues": {
-        "names": ALL_GSOC_ORGS,
+        "names":  [
+            "cBioPortal",
+            "google-deepmind",
+            "kornia",
+            "openclimatefix",
+            "huggingface",
+            "pytorch",
+            "kubeflow",
+            "freecodecamp",
+            "cncf",
+            "kubernetes",
+            "KDE",
+            "apache",
+            "nodejs",
+            "linuxfoundation"
+        ],
         "filters": 'label:"good first issue","help wanted"',
         "topic_id": 3,
         "label": "🌱 GOOD FIRST ISSUE",
